@@ -24,8 +24,8 @@ class Resources {
     private Integer count = 1;
     private boolean flag;
     private ReentrantLock lock = new ReentrantLock();
-    private Condition productCondit = lock.newCondition(); // 生产者上的锁
-    private Condition consumerCondit = lock.newCondition(); // 消费者上的锁
+    private Condition productCondit = lock.newCondition(); // 生产者上的锁的同步监视器
+    private Condition consumerCondit = lock.newCondition(); // 消费者上的锁的同步监视器
 
     public void setValue(String name) {
         lock.lock();
