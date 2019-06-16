@@ -19,11 +19,13 @@ public class ProductConsumerSafe{
 class Resource{
 	String name; // 没有私有化，简便访问。
 	char sex;
+	boolean flag; // 标志位，代表资源的状态，如果为true，代表有资源，否则代表没资源
 }
 
 class Input implements Runnable{
 	private Resource resource;
-	
+
+
 	public Input(Resource resource){
 		this.resource = resource;
 	}
@@ -32,6 +34,13 @@ class Input implements Runnable{
 		boolean flag = true;
 		while(true){
 			synchronized (resource){
+				if(resource.flag){ // 有资源就等待
+					try {
+						resource.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
 				if(flag){
 					resource.name = "张三";
 					resource.sex = '男';
@@ -41,6 +50,8 @@ class Input implements Runnable{
 					resource.sex = '女';
 					flag = true;
 				}
+				resource.flag = true;
+				resource.notify();
 			}
 		}
 	}
@@ -57,7 +68,16 @@ class Output implements Runnable{
 	public void run(){
 		while(true){
 			synchronized (resource){
-				System.out.println(resource.name + "---" + resource.sex);
+				if(!resource.flag){
+					try {
+						resource.wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				System.out.println("name：" + resource.name + "，sex：" + resource.sex);
+				resource.flag = false;
+				resource.notify();
 			}
 		}
 	}
